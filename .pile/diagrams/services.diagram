@@ -1,0 +1,19 @@
+diagram architecture version=1 {
+  title "How the blog's parts talk to one another"
+  desc "The pages ask the posts service for posts and the auth service who an author is, and both keep their data in the database."
+  flow right
+
+  box ui pile="@blog-ui" sub="what a reader sees"
+  box posts pile="@posts" sub="serves the posts" focal=#true
+  box auth pile="@auth" sub="proves who an author is"
+  box db pile="@db" sub="Postgres" as=store
+
+  tier ui
+  tier posts auth
+  tier db
+
+  line ui posts label="posts"
+  line ui auth label="sign in"
+  line posts db label="read"
+  line auth db label="sessions"
+}

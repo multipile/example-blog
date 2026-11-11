@@ -1,0 +1,6 @@
+version = "gitpile/1"
+
+[[edges]]
+type = "relies-on"
+target = "@db"
+title = "reads posts and their authors from the schema"

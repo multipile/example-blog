@@ -1,0 +1,90 @@
+# Shows each pull request by pile: which piles it changed, each with what
+# the pile is for, and an agent's review of the change against each intent.
+name: piles
+
+on:
+  pull_request:
+    # edited: a new base, or a new description, which is the task.
+    types: [opened, synchronize, reopened, ready_for_review, edited]
+
+concurrency:
+  group: piles-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+# To try what is not released yet, set the repository variables PILE_REF (a
+# branch or tag of multipile/pile-cli, built from source) and PLUGIN_REF (a
+# branch or tag of multipile/multipile-agent-plugins). Unset, CI takes the
+# newest pile 0.1.x and the plugins' main.
+env:
+  PLUGIN_REF: ${{ vars.PLUGIN_REF || 'main' }}
+
+jobs:
+  piles:
+    name: piles
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # for the pictures of diagrams, on multipile/assets
+      pull-requests: write
+      id-token: write
+    steps:
+      # The pull request's own head, not the merge GitHub would make, so the
+      # piles are those of the pull request's "Files changed".
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      # Keeps the pile gitdiff comment on the pull request, with the
+      # diagrams it touches, and makes the prompt for the review. pile and
+      # pile-review-comment stay on PATH for the agent.
+      - id: piles
+        uses: multipile/generate-pile-diff-action@v0
+        with:
+          pile-ref: ${{ vars.PILE_REF }}
+          diagrams: branch
+
+      # The token comes from `claude setup-token`. Without it, or with no
+      # pile changed, or on a draft, there is no review.
+      - name: Decide whether to review
+        id: review
+        run: |
+          if [ -z "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
+            echo "::notice::CLAUDE_CODE_OAUTH_TOKEN is not set, so the review is skipped"
+          elif [ "$CHANGED" = 0 ]; then
+            echo "::notice::no pile changed, so the review is skipped"
+          elif [ "$DRAFT" = true ]; then
+            echo "::notice::the pull request is a draft, so the review is skipped"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          CHANGED: ${{ steps.piles.outputs.changed-piles }}
+          DRAFT: ${{ github.event.pull_request.draft }}
+
+      - name: Fetch the plugins
+        if: steps.review.outputs.run == 'true'
+        run: |
+          git clone --quiet --depth 1 --branch "$PLUGIN_REF" \
+            https://github.com/multipile/multipile-agent-plugins.git \
+            "$RUNNER_TEMP/multipile-agent-plugins"
+
+      # The prompt asks for the review as one comment, edited on every run,
+      # which pile-review-comment keeps. The agent gets only the tools the
+      # review needs: it can't write to GitHub any other way.
+      - uses: anthropics/claude-code-action@v1
+        if: steps.review.outputs.run == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }} # for pile-review-comment and gh pr view
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ github.token }}
+          plugin_marketplaces: ${{ runner.temp }}/multipile-agent-plugins
+          plugins: "gitrepo@multipile"
+          prompt: ${{ steps.piles.outputs.prompt }}
+          # What pile guide review runs, and pile-review-comment to post.
+          claude_args: |
+            --allowedTools "Read,Glob,Grep,Write,Bash(pile:*),Bash(pile-review-comment:*),Bash(command -v pile),Bash(git fetch:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git merge-base:*),Bash(gh pr view:*),Bash(gh pr diff:*)"

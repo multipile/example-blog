@@ -1,0 +1,10 @@
+version = "gitpile/1"
+
+[[edges]]
+type = "relies-on"
+target = "@db"
+title = "keeps authors, sessions and tokens in the schema"
+description = """
+Reads an author's password hash, and writes each session and token, in tables the
+database's migrations create.
+"""
