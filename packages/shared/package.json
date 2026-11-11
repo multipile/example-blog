@@ -1,0 +1,9 @@
+{
+  "name": "@blog/shared",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "node --test --import tsx src/*.test.ts"
+  }
+}

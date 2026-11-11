@@ -1,0 +1,14 @@
+{
+  "name": "@blog/auth",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "test": "node --test --import tsx src/*.test.ts"
+  },
+  "dependencies": {
+    "hono": "^4.6.10",
+    "pg": "^8.13.1"
+  }
+}

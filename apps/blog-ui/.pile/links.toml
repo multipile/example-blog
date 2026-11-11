@@ -1,0 +1,11 @@
+version = "gitpile/1"
+
+[[edges]]
+type = "relies-on"
+target = "@shared"
+title = "reads instants the way every part does"
+
+[[edges]]
+type = "relies-on"
+target = "@posts"
+title = "gets the published posts to show"

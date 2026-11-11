@@ -1,0 +1,6 @@
+# What this subtree is. One property per line; # is a comment.
+# Committing this file is what carries the pile to a clone.
+kind = auxiliary-gitpile
+version = 1
+id = b3ff3cfe9d3f10fd4664aac811c8bd99
+name = piles

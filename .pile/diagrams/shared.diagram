@@ -1,0 +1,14 @@
+diagram dependency version=1 {
+  title "What uses the shared types"
+  desc "The pages and both services take their types from the shared package."
+
+  box ui pile="@blog-ui"
+  box posts pile="@posts"
+  box auth pile="@auth"
+  box shared pile="@shared" focal=#true
+
+  line ui shared
+  line posts shared
+  line auth shared
+  line ui posts
+}
