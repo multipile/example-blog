@@ -1,0 +1,18 @@
+diagram sequence version=1 {
+  title "How a post is read"
+  desc "The posts service looks for the post in the cache first. On a miss it reads it from the database, and keeps it in the cache for a minute."
+
+  actor ui pile="@blog-ui"
+  actor posts pile="@posts"
+  actor cache "cache" as=store
+  actor db pile="@db" as=store
+
+  call ui posts "get a post"
+  call posts cache "get post:slug"
+  reply cache posts "miss"
+  call posts db "read the post"
+  reply db posts "the post"
+  self posts "keep a minute" focal=#true
+  call posts cache "set, for 60s"
+  reply posts ui "the post"
+}

@@ -1,19 +1,21 @@
 diagram architecture version=1 {
   title "How the blog's parts talk to one another"
-  desc "The pages ask the posts service for posts and the auth service who an author is, and both keep their data in the database."
+  desc "The pages ask the posts service for posts and the auth service who an author is. Both keep their data in the database, and the posts service keeps the posts just read in a cache."
   flow right
 
   box ui pile="@blog-ui" sub="what a reader sees"
   box posts pile="@posts" sub="serves the posts" focal=#true
   box auth pile="@auth" sub="proves who an author is"
   box db pile="@db" sub="Postgres" as=store
+  box cache "cache" sub="Redis" as=store
 
   tier ui
   tier posts auth
-  tier db
+  tier db cache
 
   line ui posts label="posts"
   line ui auth label="sign in"
   line posts db label="read"
+  line posts cache label="hot posts"
   line auth db label="sessions"
 }
