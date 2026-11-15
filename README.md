@@ -5,6 +5,9 @@ gives a pull request: the change shown pile by pile, the diagrams it touches,
 and a review of it against what each pile is for. Open the
 [pull requests](https://github.com/multipile/example-blog/pulls) to see one.
 
+> [!NOTE]
+> **multipile is in early development.** Commands, file formats and output can still change between releases. Try it, and [tell us what you find](https://github.com/multipile/example-blog/issues).
+
 The blog itself is the pages readers see, the service that serves them posts,
 the service that signs authors in, and the database they keep their data in.
 
