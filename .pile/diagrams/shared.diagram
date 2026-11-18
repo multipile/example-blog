@@ -1,14 +1,21 @@
 diagram dependency version=1 {
   title "What uses the shared types"
-  desc "The pages and both services take their types from the shared package."
+  desc "The pages and the posts service take their types from the shared package."
 
-  box ui pile="@blog-ui"
-  box posts pile="@posts"
-  box auth pile="@auth"
-  box shared pile="@shared" focal=#true
+  box blog-ui pile:id="cf24405be76a88aa7224a80db519f9b4"
+  box posts pile:id="36f1b63625a269a217eb8d640e363796"
+  box shared pile:id="963f4ea2169be890126933680a9edaf3" focal=#true
 
-  line ui shared
-  line posts shared
-  line auth shared
-  line ui posts
+  line blog-ui shared pile:edge="relies-on"
+  line posts shared pile:edge="relies-on"
+  line blog-ui posts pile:edge="relies-on"
+
+  meta pile {
+    boxes {
+      include #"?- edge(_, Node, "relies-on", @shared)."#
+    }
+    lines {
+      include #"?- edge(Edge, _, "relies-on", @shared)."#
+    }
+  }
 }

@@ -4,3 +4,8 @@ version = "gitpile/1"
 type = "relies-on"
 target = "@db"
 title = "reads posts and their authors from the schema"
+
+[[edges]]
+type = "relies-on"
+target = "@shared"
+title = "writes instants the way every part does"
