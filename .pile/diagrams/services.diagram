@@ -1,19 +1,31 @@
 diagram architecture version=1 {
   title "How the blog's parts talk to one another"
-  desc "The pages ask the posts service for posts and the auth service who an author is, and both keep their data in the database."
+  desc "The pages ask the posts service for posts, and the posts and auth services both keep their data in the database."
   flow right
 
-  box ui pile="@blog-ui" sub="what a reader sees"
-  box posts pile="@posts" sub="serves the posts" focal=#true
-  box auth pile="@auth" sub="proves who an author is"
-  box db pile="@db" sub="Postgres" as=store
+  box ui "blog-ui" pile:id="cf24405be76a88aa7224a80db519f9b4" sub="what a reader sees"
+  box posts pile:id="36f1b63625a269a217eb8d640e363796" sub="serves the posts" focal=#true
+  box auth pile:id="272bff82615034c31351cf53a5351248" sub="proves who an author is"
+  box db pile:id="6f72b4ddaf1961c74b63f5c1334b8e0d" sub="Postgres" as=store
 
   tier ui
   tier posts auth
   tier db
 
-  line ui posts label="posts"
-  line ui auth label="sign in"
-  line posts db label="read"
-  line auth db label="sessions"
+  line ui posts label="posts" pile:edge="relies-on"
+  line posts db label="read" pile:edge="relies-on"
+  line auth db label="sessions" pile:edge="relies-on"
+
+  meta pile {
+    boxes {
+      include "?- node(Node, pile, _)."
+      ignore "blog" id="5a1c1b2a0920e0aaad4e090f33fac817" reason="the whole repository, which holds every part drawn here"
+      ignore "ci" id="11b08dcd9dd88b13a326c5895cf225fe" reason="checks the blog, and is no part of it running"
+      ignore "piles" id="b3ff3cfe9d3f10fd4664aac811c8bd99" reason="declares the link types, and is no part of the blog"
+      ignore "shared" id="963f4ea2169be890126933680a9edaf3" reason="types only: the shared diagram shows what uses them"
+    }
+    lines {
+      include #"?- edge(Edge, _, "relies-on", _)."#
+    }
+  }
 }
