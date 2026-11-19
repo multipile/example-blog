@@ -3,16 +3,16 @@ diagram architecture version=1 {
   desc "The pages ask the posts service for posts, and the posts and auth services both keep their data in the database."
   flow right
 
-  box blog-ui pile:id="cf24405be76a88aa7224a80db519f9b4" sub="what a reader sees"
+  box ui "blog-ui" pile:id="cf24405be76a88aa7224a80db519f9b4" sub="what a reader sees"
   box posts pile:id="36f1b63625a269a217eb8d640e363796" sub="serves the posts" focal=#true
   box auth pile:id="272bff82615034c31351cf53a5351248" sub="proves who an author is"
   box db pile:id="6f72b4ddaf1961c74b63f5c1334b8e0d" sub="Postgres" as=store
 
-  tier blog-ui
+  tier ui
   tier posts auth
   tier db
 
-  line blog-ui posts label="posts" pile:edge="relies-on"
+  line ui posts label="posts" pile:edge="relies-on"
   line posts db label="read" pile:edge="relies-on"
   line auth db label="sessions" pile:edge="relies-on"
 
