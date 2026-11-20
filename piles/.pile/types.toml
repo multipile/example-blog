@@ -6,8 +6,8 @@ title = "something outside the repository that a pile relies on"
 
 [[edge-types]]
 name = "relies-on"
-title = "one pile relies on what another is for"
+title = "one pile relies on what another pile, or something outside the repository, is for"
 source = ["pile"]
 target = ["pile", "external"]
-do = "say what the source relies on, in words of the target's intent"
+do = "say what the source relies on: in words of the target's intent when it is a pile, and of what it is used for when it is outside the repository"
 dont = "name a file or a path"
