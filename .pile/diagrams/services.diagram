@@ -11,7 +11,7 @@ diagram architecture version=1 {
 
   tier ui
   tier posts auth
-  tier db redis
+  tier redis db
 
   line ui posts label="posts" pile:edge="relies-on"
   line posts db label="read" pile:edge="relies-on"
