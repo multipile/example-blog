@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import pg from "pg";
+import { cached } from "./cache.js";
 
 const db = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 const app = new Hono().basePath("/api");
@@ -22,15 +23,19 @@ app.get("/posts", async (c) => {
   })));
 });
 
-/** One published post, whole. */
+/** One published post, whole. A post someone has just read is kept in the cache for a minute. */
 app.get("/posts/:slug", async (c) => {
-  const { rows } = await db.query(`
-    SELECT p.title, a.display_name AS author, p.body, p.published_at
-      FROM posts p JOIN authors a ON a.id = p.author_id
-     WHERE p.slug = $1 AND p.published_at IS NOT NULL`, [c.req.param("slug")]);
-  const r = rows[0];
-  if (!r) return c.json({ error: "no such post" }, 404);
-  return c.json({ title: r.title, author: r.author, body: r.body, publishedAt: r.published_at.toISOString() });
+  const slug = c.req.param("slug");
+  const post = await cached(`post:${slug}`, async () => {
+    const { rows } = await db.query(`
+      SELECT p.title, a.display_name AS author, p.body, p.published_at
+        FROM posts p JOIN authors a ON a.id = p.author_id
+       WHERE p.slug = $1 AND p.published_at IS NOT NULL`, [slug]);
+    const r = rows[0];
+    return r ? { title: r.title, author: r.author, body: r.body, publishedAt: r.published_at.toISOString() } : null;
+  });
+  if (!post) return c.json({ error: "no such post" }, 404);
+  return c.json(post);
 });
 
 export default app;

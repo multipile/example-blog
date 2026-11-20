@@ -1,0 +1,18 @@
+diagram sequence version=1 {
+  title "How a post is read"
+  desc "The posts service looks for the post in the cache first. On a miss it reads it from the database, and keeps it in the cache for a minute."
+
+  actor ui "blog-ui" pile:id="cf24405be76a88aa7224a80db519f9b4"
+  actor posts pile:id="36f1b63625a269a217eb8d640e363796"
+  actor redis pile:id="36f1b63625a269a217eb8d640e363796" pile:node-type=external as=store
+  actor db pile:id="6f72b4ddaf1961c74b63f5c1334b8e0d" as=store
+
+  call ui posts "get a post"
+  call posts redis "get post:slug"
+  reply redis posts "miss"
+  call posts db "read the post"
+  reply db posts "the post"
+  self posts "keep a minute" focal=#true
+  call posts redis "set, for 60s"
+  reply posts ui "the post"
+}

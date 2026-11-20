@@ -9,3 +9,8 @@ title = "reads posts and their authors from the schema"
 type = "relies-on"
 target = "@shared"
 title = "writes instants the way every part does"
+
+[[edges]]
+type = "relies-on"
+target = "external:redis"
+title = "keeps the posts just read in, for a minute"
