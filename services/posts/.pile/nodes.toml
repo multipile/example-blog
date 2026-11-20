@@ -1,0 +1,6 @@
+version = "gitpile/1"
+
+[[nodes]]
+type = "external"
+name = "redis"
+title = "the cache the posts just read are kept in"
